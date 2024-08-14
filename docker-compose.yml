@@ -1,4 +1,4 @@
-# version: '3.8'
+version: '3.8'
 
 services:
   ui:
@@ -15,13 +15,8 @@ services:
     hostname: ui
     image: public.ecr.aws/aws-containers/retail-store-sample-ui:${TAG}
     restart: always
-    deploy:
-      resources:
-        limits:
-          memory: 256m
     cap_drop:
       - ALL
-
 
   catalog:
     hostname: catalog
@@ -30,10 +25,6 @@ services:
     environment:
       - GIN_MODE=release
       - DB_PASSWORD=${MYSQL_PASSWORD}
-    deploy:
-      resources:
-        limits:
-          memory: 128m
     cap_drop:
       - ALL
 
@@ -47,10 +38,6 @@ services:
       - MYSQL_DATABASE=sampledb
       - MYSQL_USER=catalog_user
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-    deploy:
-      resources:
-        limits:
-          memory: 128m
 
   carts:
     hostname: carts
@@ -64,10 +51,6 @@ services:
       - CARTS_DYNAMODB_CREATETABLE=true
       - AWS_ACCESS_KEY_ID=key
       - AWS_SECRET_ACCESS_KEY=dummy
-    deploy:
-      resources:
-        limits:
-          memory: 256m
     cap_drop:
       - ALL
 
@@ -75,11 +58,7 @@ services:
     image: amazon/dynamodb-local:1.20.0
     hostname: carts-db
     restart: always
-    deploy:
-      resources:
-        limits:
-          memory: 128m
-    
+
   orders:
     hostname: orders
     image: public.ecr.aws/aws-containers/retail-store-sample-orders:${TAG}
@@ -95,10 +74,6 @@ services:
       - SPRING_DATASOURCE_READER_USERNAME=orders_user
       - SPRING_DATASOURCE_READER_PASSWORD=${MYSQL_PASSWORD}
       - SPRING_RABBITMQ_HOST=rabbitmq
-    deploy:
-      resources:
-        limits:
-          memory: 256m
     cap_drop:
       - ALL
 
@@ -112,10 +87,6 @@ services:
       - MYSQL_DATABASE=orders
       - MYSQL_USER=orders_user
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-    deploy:
-      resources:
-        limits:
-          memory: 128m
 
   checkout:
     image: public.ecr.aws/aws-containers/retail-store-sample-checkout:${TAG}
@@ -127,10 +98,6 @@ services:
     environment:
       - REDIS_URL=redis://checkout-redis:6379
       - ENDPOINTS_ORDERS=http://orders:8080
-    deploy:
-      resources:
-        limits:
-          memory: 256m
     cap_drop:
       - ALL
 
@@ -138,10 +105,6 @@ services:
     image: redis:6-alpine
     hostname: checkout-redis
     restart: always
-    deploy:
-      resources:
-        limits:
-          memory: 128m
 
   assets:
     hostname: assets
@@ -149,10 +112,6 @@ services:
       - PORT=8080
     image: public.ecr.aws/aws-containers/retail-store-sample-assets:${TAG}
     restart: always
-    deploy:
-      resources:
-        limits:
-          memory: 64m
     cap_drop:
       - ALL
 
