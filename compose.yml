@@ -1,0 +1,185 @@
+name: tips
+services:
+  assets:
+    cap_drop:
+      - ALL
+    deploy:
+      resources:
+        limits:
+          memory: "67108864"
+    environment:
+      PORT: "8080"
+    hostname: assets
+    image: public.ecr.aws/aws-containers/retail-store-sample-assets:latest
+    networks:
+      default: null
+    restart: always
+  carts:
+    cap_drop:
+      - ALL
+    deploy:
+      resources:
+        limits:
+          memory: "268435456"
+    environment:
+      AWS_ACCESS_KEY_ID: key
+      AWS_SECRET_ACCESS_KEY: dummy
+      CARTS_DYNAMODB_CREATETABLE: "true"
+      CARTS_DYNAMODB_ENDPOINT: http://carts-db:8000
+      JAVA_OPTS: -XX:MaxRAMPercentage=75.0 -Djava.security.egd=file:/dev/urandom
+      SERVER_TOMCAT_ACCESSLOG_ENABLED: "true"
+      SPRING_PROFILES_ACTIVE: dynamodb
+    hostname: carts
+    image: public.ecr.aws/aws-containers/retail-store-sample-cart:latest
+    networks:
+      default: null
+    restart: always
+  carts-db:
+    deploy:
+      resources:
+        limits:
+          memory: "134217728"
+    hostname: carts-db
+    image: amazon/dynamodb-local:1.20.0
+    networks:
+      default: null
+    restart: always
+  catalog:
+    cap_drop:
+      - ALL
+    deploy:
+      resources:
+        limits:
+          memory: "134217728"
+    environment:
+      DB_PASSWORD: abc123
+      GIN_MODE: release
+    hostname: catalog
+    image: public.ecr.aws/aws-containers/retail-store-sample-catalog:latest
+    networks:
+      default: null
+    restart: always
+  catalog-db:
+    deploy:
+      resources:
+        limits:
+          memory: "134217728"
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "true"
+      MYSQL_DATABASE: sampledb
+      MYSQL_PASSWORD: abc123
+      MYSQL_ROOT_PASSWORD: abc123
+      MYSQL_USER: catalog_user
+    hostname: catalog-db
+    image: mariadb:10.9
+    networks:
+      default: null
+    restart: always
+  checkout:
+    cap_drop:
+      - ALL
+    deploy:
+      resources:
+        limits:
+          memory: "268435456"
+    environment:
+      ENDPOINTS_ORDERS: http://orders:8080
+      REDIS_URL: redis://checkout-redis:6379
+    hostname: checkout
+    image: public.ecr.aws/aws-containers/retail-store-sample-checkout:latest
+    networks:
+      default: null
+    read_only: true
+    restart: always
+    tmpfs:
+      - /tmp:rw,noexec,nosuid
+  checkout-redis:
+    deploy:
+      resources:
+        limits:
+          memory: "134217728"
+    hostname: checkout-redis
+    image: redis:6-alpine
+    networks:
+      default: null
+    restart: always
+  orders:
+    cap_drop:
+      - ALL
+    deploy:
+      resources:
+        limits:
+          memory: "268435456"
+    environment:
+      JAVA_OPTS: -XX:MaxRAMPercentage=75.0 -Djava.security.egd=file:/dev/urandom
+      SERVER_TOMCAT_ACCESSLOG_ENABLED: "true"
+      SPRING_DATASOURCE_READER_PASSWORD: abc123
+      SPRING_DATASOURCE_READER_URL: jdbc:mariadb://orders-db:3306/orders
+      SPRING_DATASOURCE_READER_USERNAME: orders_user
+      SPRING_DATASOURCE_WRITER_PASSWORD: abc123
+      SPRING_DATASOURCE_WRITER_URL: jdbc:mariadb://orders-db:3306/orders
+      SPRING_DATASOURCE_WRITER_USERNAME: orders_user
+      SPRING_PROFILES_ACTIVE: mysql,rabbitmq
+      SPRING_RABBITMQ_HOST: rabbitmq
+    hostname: orders
+    image: public.ecr.aws/aws-containers/retail-store-sample-orders:latest
+    networks:
+      default: null
+    restart: always
+  orders-db:
+    deploy:
+      resources:
+        limits:
+          memory: "134217728"
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "true"
+      MYSQL_DATABASE: orders
+      MYSQL_PASSWORD: abc123
+      MYSQL_ROOT_PASSWORD: abc123
+      MYSQL_USER: orders_user
+    hostname: orders-db
+    image: mariadb:10.9
+    networks:
+      default: null
+    restart: always
+  rabbitmq:
+    image: rabbitmq:3-management
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 5672
+        published: "5672"
+        protocol: tcp
+      - mode: ingress
+        target: 15672
+        published: "15672"
+        protocol: tcp
+  ui:
+    cap_drop:
+      - ALL
+    deploy:
+      resources:
+        limits:
+          memory: "268435456"
+    environment:
+      ENDPOINTS_ASSETS: http://assets:8080
+      ENDPOINTS_CARTS: http://carts:8080
+      ENDPOINTS_CATALOG: http://catalog:8080
+      ENDPOINTS_CHECKOUT: http://checkout:8080
+      ENDPOINTS_ORDERS: http://orders:8080
+      JAVA_OPTS: -XX:MaxRAMPercentage=75.0 -Djava.security.egd=file:/dev/urandom
+      SERVER_TOMCAT_ACCESSLOG_ENABLED: "true"
+    hostname: ui
+    image: public.ecr.aws/aws-containers/retail-store-sample-ui:latest
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 8080
+        published: "8888"
+        protocol: tcp
+    restart: always
+networks:
+  default:
+    name: tips_default
