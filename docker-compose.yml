@@ -1,4 +1,5 @@
-name: s8giress_do_it_yourself
+version: '3.7'
+
 services:
   assets:
     cap_drop:
@@ -12,8 +13,9 @@ services:
     hostname: assets
     image: devopseasylearning/s8giress_do_it_yourself_assets_api:${TAG}
     networks:
-      default: null
+      - default
     restart: always
+
   carts:
     cap_drop:
       - ALL
@@ -32,8 +34,9 @@ services:
     hostname: carts
     image: devopseasylearning/s8giress_do_it_yourself_cart_api:${TAG}
     networks:
-      default: null
+      - default
     restart: always
+
   carts-db:
     deploy:
       resources:
@@ -42,8 +45,9 @@ services:
     hostname: carts-db
     image: amazon/dynamodb-local:1.20.0
     networks:
-      default: null
+      - default
     restart: always
+
   catalog:
     cap_drop:
       - ALL
@@ -57,8 +61,9 @@ services:
     hostname: catalog
     image: devopseasylearning/s8giress_do_it_yourself_catalog_api:${TAG}
     networks:
-      default: null
+      - default
     restart: always
+
   catalog-db:
     deploy:
       resources:
@@ -73,8 +78,9 @@ services:
     hostname: catalog-db
     image: mariadb:10.9
     networks:
-      default: null
+      - default
     restart: always
+
   checkout:
     cap_drop:
       - ALL
@@ -88,11 +94,12 @@ services:
     hostname: checkout
     image: devopseasylearning/s8giress_do_it_yourself_checkout_api:${TAG}
     networks:
-      default: null
+      - default
     read_only: true
     restart: always
     tmpfs:
       - /tmp:rw,noexec,nosuid
+
   checkout-redis:
     deploy:
       resources:
@@ -101,8 +108,9 @@ services:
     hostname: checkout-redis
     image: redis:6-alpine
     networks:
-      default: null
+      - default
     restart: always
+
   orders:
     cap_drop:
       - ALL
@@ -122,10 +130,11 @@ services:
       SPRING_PROFILES_ACTIVE: mysql,rabbitmq
       SPRING_RABBITMQ_HOST: rabbitmq
     hostname: orders
-    image: devopseasylearning/s8giress_do_it_yourself_orders_api:${TAG}  
+    image: devopseasylearning/s8giress_do_it_yourself_orders_api:${TAG}
     networks:
-      default: null
+      - default
     restart: always
+
   orders-db:
     deploy:
       resources:
@@ -140,21 +149,17 @@ services:
     hostname: orders-db
     image: mariadb:10.9
     networks:
-      default: null
+      - default
     restart: always
+
   rabbitmq:
     image: rabbitmq:3-management
     networks:
-      default: null
+      - default
     ports:
-      - mode: ingress
-        target: 5672
-        published: "5672"
-        protocol: tcp
-      - mode: ingress
-        target: 15672
-        published: "15672"
-        protocol: tcp
+      - "5672:5672"
+      - "15672:15672"
+
   ui:
     cap_drop:
       - ALL
@@ -171,15 +176,13 @@ services:
       JAVA_OPTS: -XX:MaxRAMPercentage=75.0 -Djava.security.egd=file:/dev/urandom
       SERVER_TOMCAT_ACCESSLOG_ENABLED: "true"
     hostname: ui
-    image: devopseasylearning/s8giress_do_it_yourself_ui:${TAG} 
+    image: devopseasylearning/s8giress_do_it_yourself_ui:${TAG}
     networks:
-      default: null
+      - default
     ports:
-      - mode: ingress
-        target: 8080
-        published: "8888"
-        protocol: tcp
+      - "8888:8080"
     restart: always
+
 networks:
   default:
     name: tips_default
