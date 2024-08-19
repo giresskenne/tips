@@ -1,4 +1,4 @@
-name: tips
+name: s8giress_do_it_yourself
 services:
   assets:
     cap_drop:
@@ -10,7 +10,7 @@ services:
     environment:
       PORT: "8080"
     hostname: assets
-    image: public.ecr.aws/aws-containers/retail-store-sample-assets:latest
+    image: devopseasylearning/s8giress_do_it_yourself_assets_api:${TAG}
     networks:
       default: null
     restart: always
@@ -30,7 +30,7 @@ services:
       SERVER_TOMCAT_ACCESSLOG_ENABLED: "true"
       SPRING_PROFILES_ACTIVE: dynamodb
     hostname: carts
-    image: public.ecr.aws/aws-containers/retail-store-sample-cart:latest
+    image: devopseasylearning/s8giress_do_it_yourself_cart_api:${TAG}
     networks:
       default: null
     restart: always
@@ -55,7 +55,7 @@ services:
       DB_PASSWORD: abc123
       GIN_MODE: release
     hostname: catalog
-    image: public.ecr.aws/aws-containers/retail-store-sample-catalog:latest
+    image: devopseasylearning/s8giress_do_it_yourself_catalog_api:${TAG}
     networks:
       default: null
     restart: always
@@ -86,7 +86,7 @@ services:
       ENDPOINTS_ORDERS: http://orders:8080
       REDIS_URL: redis://checkout-redis:6379
     hostname: checkout
-    image: public.ecr.aws/aws-containers/retail-store-sample-checkout:latest
+    image: devopseasylearning/s8giress_do_it_yourself_checkout_api:${TAG}
     networks:
       default: null
     read_only: true
@@ -122,7 +122,7 @@ services:
       SPRING_PROFILES_ACTIVE: mysql,rabbitmq
       SPRING_RABBITMQ_HOST: rabbitmq
     hostname: orders
-    image: public.ecr.aws/aws-containers/retail-store-sample-orders:latest
+    image: devopseasylearning/s8giress_do_it_yourself_orders_api:${TAG}  
     networks:
       default: null
     restart: always
@@ -171,7 +171,7 @@ services:
       JAVA_OPTS: -XX:MaxRAMPercentage=75.0 -Djava.security.egd=file:/dev/urandom
       SERVER_TOMCAT_ACCESSLOG_ENABLED: "true"
     hostname: ui
-    image: public.ecr.aws/aws-containers/retail-store-sample-ui:latest
+    image: devopseasylearning/s8giress_do_it_yourself_ui:${TAG} 
     networks:
       default: null
     ports:
